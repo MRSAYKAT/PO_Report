@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PO Entry Form</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif !important;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      font-family: "Segoe UI", Arial, sans-serif !important;
+    }
+    .form-container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 800px;
+      margin: auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      font-family: "Segoe UI", Arial, sans-serif !important;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+      color: #34495e;
+      font-family: "Segoe UI", Arial, sans-serif !important;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      text-transform: uppercase;
+      font-family: "Segoe UI", Arial, sans-serif !important;
+    }
+    .po-section {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+    .po-section h3 {
+      margin-top: 0;
+      color: #2c3e50;
+      font-family: "Segoe UI", Arial, sans-serif !important;
+    }
+    button {
+      background: #2c3e50;
+      color: #fff;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 20px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+      font-weight: bold;
+      font-family: "Segoe UI", Arial, sans-serif !important;
+    }
+    button:hover {
+      background: #1a242f;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>PO Entry Form</h2>
+  <form id="poForm" class="form-container">
+    <label>Executive Name:</label>
+    <select id="executive" required onchange="toggleOtherExecutive()">
+      <option value="">-- Select Executive --</option>
+      <option value="Arindam Nag">Arindam Nag</option>
+      <option value="Other">Other</option>
+    </select>
+    <input type="text" id="otherExecutive" class="hidden" placeholder="Enter Executive Name">
+
+    <label>Store Code:</label>
+    <input type="text" id="storeCode" required>
+
+    <label>Store Name:</label>
+    <input type="text" id="storeName" required>
+
+    <label>How many POs this month?</label>
+    <select id="poCount" required onchange="showPOFields()">
+      <option value="">--Select--</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+    </select>
+
+    <div id="poContainer"></div>
+    <button id="submitBtn" type="button" onclick="submitForm()">Submit</button>
+  </form>
+
+  <script>
+    function toggleOtherExecutive() {
+      const exec = document.getElementById("executive").value;
+      const otherInput = document.getElementById("otherExecutive");
+      if (exec === "Other") {
+        otherInput.classList.remove("hidden");
+        otherInput.required = true;
+      } else {
+        otherInput.classList.add("hidden");
+        otherInput.required = false;
+      }
+    }
+
+    function showPOFields() {
+      const count = document.getElementById("poCount").value;
+      const container = document.getElementById("poContainer");
+      container.innerHTML = "";
+      for (let i = 1; i <= count; i++) {
+        container.innerHTML += `
+          <div class="po-section">
+            <h3>PO Details ${i}</h3>
+            <label>PO Date: <input type="date" name="poDate${i}" required></label>
+            <label>PO Number: <input type="text" name="poNumber${i}" required></label>
+            <label>No of SKU Ordered: <input type="number" name="skuOrdered${i}" required></label>
+            <label>No of Qty Ordered: <input type="number" name="qtyOrdered${i}" required></label>
+            <label>Total Value (₹): <input type="number" name="totalValue${i}" required></label>
+            <label>Approved Date: <input type="date" name="approvedDate${i}" required></label>
+            <label>Receiving Date: <input type="date" name="receivingDate${i}" required></label>
+            <label>Invoice No: <input type="text" name="invoiceNo${i}" required></label>
+            <label>Invoice Qty: <input type="number" name="invoiceQty${i}" required></label>
+            <label>Invoice Value (₹): <input type="number" name="invoiceValue${i}" required></label>
+          </div>
+        `;
+      }
+    }
+
+    async function submitForm() {
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true;
+
+      const executive = document.getElementById("executive").value === "Other" 
+        ? document.getElementById("otherExecutive").value.trim() 
+        : document.getElementById("executive").value;
+
+      const storeCode = document.getElementById("storeCode").value.trim();
+      const storeName = document.getElementById("storeName").value.trim();
+      const poCount = document.getElementById("poCount").value;
+
+      if (!executive || !storeCode || !storeName || !poCount) {
+        alert("⚠️ Please fill all mandatory fields before submitting.");
+        btn.disabled = false;
+        return;
+      }
+
+      let pos = [];
+      for (let i = 1; i <= poCount; i++) {
+        pos.push({
+          poDate: document.querySelector(`[name=poDate${i}]`).value,
+          poNumber: document.querySelector(`[name=poNumber${i}]`).value.trim(),
+          skuOrdered: document.querySelector(`[name=skuOrdered${i}]`).value,
+          qtyOrdered: document.querySelector(`[name=qtyOrdered${i}]`).value,
+          totalValue: document.querySelector(`[name=totalValue${i}]`).value,
+          approvedDate: document.querySelector(`[name=approvedDate${i}]`).value,
+          receivingDate: document.querySelector(`[name=receivingDate${i}]`).value,
+          invoiceNo: document.querySelector(`[name=invoiceNo${i}]`).value.trim(),
+          invoiceQty: document.querySelector(`[name=invoiceQty${i}]`).value,
+          invoiceValue: document.querySelector(`[name=invoiceValue${i}]`).value
+        });
+      }
+
+      const payload = { executive, storeCode, storeName, pos };
+
+      try {
+        const scriptURL = "https://script.google.com/macros/s/AKfycbx68bdmFQiivgiXJNsAgDClwEPh2wF_-l21na0wW23baAV-XUDa8k5ZnFb3BN68i5RGEg/exec"; // replace with your Apps Script Web App link
+        let res = await fetch(scriptURL, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          alert("✅ Submitted Successfully!");
+          document.getElementById("poForm").reset(); // reset the whole form
+          document.getElementById("poContainer").innerHTML = "";
+          location.reload(); // refresh page after success
+        } else {
+          alert("❌ Submission failed. Please try again.");
+        }
+      } catch (error) {
+        alert("❌ Error connecting to server. Please check your internet or script URL.");
+      }
+
+      btn.disabled = false;
+    }
+  </script>
+</body>
+</html>
